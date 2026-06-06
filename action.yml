@@ -1,0 +1,39 @@
+name: MCP Sentinel
+description: Audit MCP server and AI agent configs for risky commands, broad file access, and leaked secrets.
+author: fasjdas
+
+inputs:
+  path:
+    description: Directory to scan.
+    required: false
+    default: .
+  fail-on:
+    description: Minimum severity that should fail the workflow.
+    required: false
+    default: high
+  github-annotations:
+    description: Emit GitHub Actions annotations.
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: npm
+        cache-dependency-path: ${{ github.action_path }}/package-lock.json
+    - run: npm ci
+      shell: bash
+      working-directory: ${{ github.action_path }}
+    - run: npm run build
+      shell: bash
+      working-directory: ${{ github.action_path }}
+    - run: |
+        ARGS=("audit" "${{ inputs.path }}" "--fail-on" "${{ inputs.fail-on }}")
+        if [ "${{ inputs.github-annotations }}" = "true" ]; then
+          ARGS+=("--github-annotations")
+        fi
+        node "${{ github.action_path }}/dist/cli.js" "${ARGS[@]}"
+      shell: bash

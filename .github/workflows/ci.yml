@@ -15,6 +15,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm run build
+      - run: npm test
       - run: node dist/cli.js audit examples/safe-project
       - run: node dist/cli.js audit examples/unsafe-project --github-annotations
+      - run: node dist/cli.js audit examples/unsafe-project --fail-on high
+        continue-on-error: true

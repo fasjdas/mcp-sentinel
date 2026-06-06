@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { audit } from "./scanner.js";
 import { renderGitHubAnnotations, renderTextReport } from "./report.js";
 import type { Severity } from "./types.js";
+
+export { audit, renderGitHubAnnotations, renderTextReport };
 
 const severityRank: Record<Severity, number> = {
   info: 0,
@@ -122,7 +125,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  });
+}

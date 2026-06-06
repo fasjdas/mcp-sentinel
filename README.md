@@ -32,9 +32,11 @@ MCP servers and coding agents are becoming normal developer infrastructure. That
 ## Quick start
 
 ```bash
+git clone https://github.com/fasjdas/mcp-sentinel
+cd mcp-sentinel
 npm install
 npm run build
-npx mcp-sentinel audit .
+node dist/cli.js audit .
 ```
 
 Run the bundled unsafe demo:
@@ -46,19 +48,19 @@ npm run audit:example
 Print JSON for CI or dashboards:
 
 ```bash
-npx mcp-sentinel audit . --json
+node dist/cli.js audit . --json
 ```
 
 Fail a pipeline when high-risk findings appear:
 
 ```bash
-npx mcp-sentinel audit . --fail-on high
+node dist/cli.js audit . --fail-on high
 ```
 
 Emit GitHub Actions annotations:
 
 ```bash
-npx mcp-sentinel audit . --github-annotations --fail-on high
+node dist/cli.js audit . --github-annotations --fail-on high
 ```
 
 ## GitHub Actions
@@ -76,11 +78,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: fasjdas/mcp-sentinel@main
         with:
-          node-version: 20
-      - run: npm install -g mcp-sentinel
-      - run: mcp-sentinel audit . --github-annotations --fail-on high
+          path: .
+          fail-on: high
 ```
 
 ## What it scans

@@ -17,6 +17,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test test/*.test.mjs",
     "dev": "tsx src/cli.ts",
     "audit:example": "tsx src/cli.ts audit examples/unsafe-project",
     "start": "node dist/cli.js audit ."

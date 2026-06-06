@@ -1,0 +1,40 @@
+{
+  "name": "mcp-sentinel",
+  "version": "0.1.0",
+  "description": "Audit MCP server and AI agent configs for risky commands, broad file access, and leaked secrets.",
+  "type": "module",
+  "bin": {
+    "mcp-sentinel": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx src/cli.ts",
+    "audit:example": "tsx src/cli.ts audit examples/unsafe-project",
+    "start": "node dist/cli.js audit ."
+  },
+  "keywords": [
+    "mcp",
+    "ai-agent",
+    "security",
+    "audit",
+    "claude",
+    "cursor",
+    "developer-tools"
+  ],
+  "license": "MIT",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "esbuild": "^0.28.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

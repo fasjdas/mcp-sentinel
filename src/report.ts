@@ -45,3 +45,19 @@ export function renderTextReport(result: AuditResult): string {
 
   return lines.join("\n").trimEnd();
 }
+
+function escapeAnnotationValue(value: string): string {
+  return value.replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A").replace(/:/g, "%3A").replace(/,/g, "%2C");
+}
+
+export function renderGitHubAnnotations(result: AuditResult): string {
+  return result.findings
+    .map((finding) => {
+      const command = finding.severity === "critical" || finding.severity === "high" ? "error" : "warning";
+      const file = escapeAnnotationValue(relative(result.root, finding.file));
+      const title = escapeAnnotationValue(`${finding.severity.toUpperCase()}: ${finding.title}`);
+      const message = escapeAnnotationValue(`${finding.evidence}. ${finding.recommendation}`);
+      return `::${command} file=${file},title=${title}::${message}`;
+    })
+    .join("\n");
+}

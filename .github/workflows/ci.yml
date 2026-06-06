@@ -17,4 +17,4 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: node dist/cli.js audit examples/safe-project
-      - run: node dist/cli.js audit examples/unsafe-project --json
+      - run: node dist/cli.js audit examples/unsafe-project --github-annotations

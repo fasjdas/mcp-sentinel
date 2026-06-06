@@ -2,7 +2,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { audit } from "./scanner.js";
-import { renderTextReport } from "./report.js";
+import { renderGitHubAnnotations, renderTextReport } from "./report.js";
 import type { Severity } from "./types.js";
 
 const severityRank: Record<Severity, number> = {
@@ -16,6 +16,7 @@ const severityRank: Record<Severity, number> = {
 type Options = {
   root: string;
   json: boolean;
+  githubAnnotations: boolean;
   output?: string;
   failOn?: Severity;
 };
@@ -24,13 +25,15 @@ function printHelp(): void {
   console.log(`mcp-sentinel
 
 Usage:
-  mcp-sentinel audit [path] [--json] [--output report.txt] [--fail-on high]
+  mcp-sentinel audit [path] [--json] [--github-annotations] [--output report.txt] [--fail-on high]
 
 Commands:
   audit    Scan MCP and AI agent configuration files.
 
 Options:
   --json              Print JSON instead of a text report.
+  --github-annotations
+                      Print GitHub Actions workflow commands for PR annotations.
   --output <file>     Write the report to a file.
   --fail-on <level>   Exit with code 2 when a finding has this severity or higher.
   --help              Show this help.
@@ -48,7 +51,8 @@ function parseArgs(argv: string[]): Options | "help" {
 
   const options: Options = {
     root: ".",
-    json: false
+    json: false,
+    githubAnnotations: false
   };
 
   while (args.length > 0) {
@@ -58,6 +62,10 @@ function parseArgs(argv: string[]): Options | "help" {
     if (arg === "--help" || arg === "-h") return "help";
     if (arg === "--json") {
       options.json = true;
+      continue;
+    }
+    if (arg === "--github-annotations") {
+      options.githubAnnotations = true;
       continue;
     }
     if (arg === "--output" || arg === "-o") {
@@ -92,7 +100,11 @@ async function main(): Promise<void> {
   }
 
   const result = await audit(options.root);
-  const rendered = options.json ? JSON.stringify(result, null, 2) : renderTextReport(result);
+  const rendered = options.githubAnnotations
+    ? renderGitHubAnnotations(result)
+    : options.json
+      ? JSON.stringify(result, null, 2)
+      : renderTextReport(result);
 
   if (options.output) {
     const outputPath = path.resolve(options.output);
